@@ -1,7 +1,8 @@
 import { saveAdmin, WhitelistedCreator } from '@metaplex/layout'
-import { getStoreID, setStoreId } from '@metaplex/utils'
+import { getStoreID, METAPLEX_ID, setStoreId } from '@metaplex/utils'
 import { WalletAdapter } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
+import { getProgramAccounts } from './helpers'
 
 export interface MetaplexOptions {
   connection: Connection
@@ -34,5 +35,9 @@ export class Metaplex {
 
   async initStore(isPublic: boolean, whitelistedCreators: WhitelistedCreator[] = []) {
     await saveAdmin(this.connection, this.adapter, isPublic, whitelistedCreators)
+  }
+
+  async getMetaplexAccounts() {
+    return getProgramAccounts(this.connection, METAPLEX_ID)
   }
 }

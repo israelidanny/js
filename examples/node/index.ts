@@ -29,6 +29,9 @@ const run = async () => {
   // 1. Init store
   await metaplex.initStore(true)
 
+  const accounts = await metaplex.getMetaplexAccounts()
+  console.log(accounts)
+
   // ...
 
   // 2. Create auction
