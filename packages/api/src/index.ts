@@ -1,5 +1,5 @@
 import { saveAdmin, WhitelistedCreator } from '@metaplex/layout'
-import { setStoreId } from '@metaplex/utils'
+import { getStoreID, setStoreId } from '@metaplex/utils'
 import { WalletAdapter } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 
@@ -25,6 +25,11 @@ export class Metaplex {
 
   setWalletAdapter(adapter: WalletAdapter) {
     this.adapter = adapter
+  }
+
+  async setStoreForOwner(ownerAddress: string) {
+    const storeId = await getStoreID(ownerAddress)
+    setStoreId(storeId)
   }
 
   async initStore(isPublic: boolean, whitelistedCreators: WhitelistedCreator[] = []) {

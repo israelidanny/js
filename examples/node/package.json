@@ -6,7 +6,7 @@
     "url": "https://github.com/metaplex/js.git"
   },
   "scripts": {
-    "dev": "ts-node -P tsconfig.json index.ts"
+    "start": "ts-node -P tsconfig.json index.ts"
   },
   "dependencies": {
     "@metaplex/api": "workspace:^0.1.0",

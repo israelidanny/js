@@ -1,11 +1,13 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { MetaplexProvider, ConnectButton } from '@metaplex/react'
+import { MetaplexProvider, ConnectButton, useMetaplex } from '@metaplex/react'
+import { getPhantomWallet } from '@solana/wallet-adapter-wallets'
 import { Card } from 'antd'
 
 const Root = () => {
-  const { connection } = useMetaplex()
+  const { connection, addWallet } = useMetaplex()
 
+  addWallet(getPhantomWallet())
   console.log(connection)
 
   return (

@@ -19,12 +19,19 @@ const connection = new Connection(
   ENDPOINTS.find(({ name }) => name === 'devnet').endpoint,
   'recent',
 )
-const metaplex = Metaplex.init({ connection, storeId: signer.publicKey.toString() })
+const metaplex = Metaplex.init({ connection })
 metaplex.setWalletAdapter(new SeedWalletAdapter({ signer }))
 
 const run = async () => {
+  // 0. Set store id
+  await metaplex.setStoreForOwner(signer.publicKey.toString())
+
   // 1. Init store
   await metaplex.initStore(true)
+
+  // ...
+
+  // 2. Create auction
 }
 
 run()
