@@ -1,10 +1,8 @@
-import { PublicKey, Transaction } from '@solana/web3.js'
+import { AccountInfo } from '@solana/web3.js'
+import { AccountInfo as TokenAccountInfo, Token } from '@solana/spl-token'
 
-export interface ISignerProvider {
-  publicKey?: PublicKey
-  isConnected?: boolean
-  connect: () => Promise<void>
-  disconnect: () => Promise<void>
-  signTransaction: (transaction: Transaction) => Promise<Transaction>
-  signAllTransactions: (transactions: Transaction[]) => Promise<Transaction[]>
+export interface TokenAccount {
+  pubkey: string
+  account: AccountInfo<Buffer>
+  info: TokenAccountInfo
 }

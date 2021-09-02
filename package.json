@@ -7,15 +7,21 @@
   },
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "g:rimraf": "cd $INIT_CWD && rimraf",
     "g:tsc": "cd $INIT_CWD && tsc",
     "build:types": "yarn workspace @metaplex/types run build",
     "build:utils": "yarn workspace @metaplex/utils run build",
-    "build": "yarn workspaces foreach run build",
-    "clean": "yarn cache clean && rm -rf node_modules"
+    "build:layout": "yarn workspace @metaplex/layout run build",
+    "build:wallets": "yarn workspace @metaplex/wallets run build",
+    "build:react": "yarn workspace @metaplex/react run build",
+    "build": "yarn workspaces foreach --exclude @metaplex/react run build",
+    "dev": "yarn workspaces foreach run dev",
+    "clean": "yarn cache clean && rm -rf node_modules",
+    "example:react": "yarn workspace example-react run start"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^4.30.0",

@@ -1,5 +1,5 @@
 {
-  "name": "@metaplex/utils",
+  "name": "@metaplex/layout",
   "version": "0.1.0",
   "license": "MIT",
   "main": "dist/index.js",
@@ -15,13 +15,11 @@
   },
   "dependencies": {
     "@metaplex/types": "workspace:^0.1.0",
+    "@metaplex/utils": "workspace:^0.1.0",
     "@solana/spl-token": "^0.1.8",
-    "@solana/spl-token-registry": "^0.2.226",
+    "@solana/wallet-adapter-base": "^0.5.1",
     "@solana/web3.js": "^1.24.1",
-    "bn.js": "^5.2.0",
-    "borsh": "^0.6.0",
-    "bs58": "^4.0.1",
     "buffer-layout": "^1.2.2",
-    "eventemitter3": "^4.0.7"
+    "moment": "^2.29.1"
   }
 }

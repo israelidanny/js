@@ -12,14 +12,17 @@
   },
   "scripts": {
     "build": "rimraf dist && tsc -p ./tsconfig.build.json",
+    "dev": "tsc --watch -p ./tsconfig.build.json",
     "test": "jest",
     "test:watch": "jest --watch"
   },
   "dependencies": {
-    "@metaplex/actions": "workspace:^0.1.0",
+    "@metaplex/layout": "workspace:^0.1.0",
     "@metaplex/types": "workspace:^0.1.0",
     "@metaplex/utils": "workspace:^0.1.0",
+    "@metaplex/wallets": "workspace:^0.1.0",
     "@solana/spl-token": "^0.1.8",
+    "@solana/wallet-adapter-base": "^0.5.1",
     "@solana/web3.js": "^1.24.1"
   },
   "devDependencies": {

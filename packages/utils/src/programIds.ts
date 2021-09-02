@@ -32,7 +32,7 @@ export const getStoreID = async (storeOwnerAddress?: string) => {
   return storeAddress
 }
 
-export const setProgramIds = async (store?: string) => {
+export const setStoreId = async (store?: string) => {
   STORE = store ? toPublicKey(store) : undefined
 }
 
