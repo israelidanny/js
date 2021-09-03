@@ -1,31 +1,60 @@
-import { saveAdmin, WhitelistedCreator } from '@metaplex/layout'
-import { getStoreID, METAPLEX_ID, setStoreId } from '@metaplex/utils'
+import { mintNFT, saveAdmin, createVault } from '@metaplex/layout'
+import {
+  AUCTION_ID,
+  getStoreID,
+  METADATA_PROGRAM_ID,
+  METAPLEX_ID,
+  setStoreId,
+  VAULT_ID,
+} from '@metaplex/utils'
 import { WalletAdapter } from '@solana/wallet-adapter-base'
 import { Connection } from '@solana/web3.js'
 import { getProgramAccounts } from './helpers'
 
 export interface MetaplexOptions {
   connection: Connection
+  wallet?: WalletAdapter
   storeId?: string
-  // wallets?: Map<string, Wallet>
+}
+
+const actions = {
+  saveAdmin,
+  mintNFT,
+  createVault,
+} as const
+
+type ActionMethodNames = keyof typeof actions
+type OmitConnectionAndWallet<F> = F extends (
+  connection: Connection,
+  wallet: WalletAdapter,
+  ...args: infer P
+) => infer R
+  ? (...args: P) => R
+  : never
+type HasActionMethods = {
+  [k in ActionMethodNames]: OmitConnectionAndWallet<typeof actions[k]>
 }
 
 export class Metaplex {
-  adapter: WalletAdapter
-
-  constructor(public connection) {}
-
-  static init({ connection, storeId }: MetaplexOptions) {
-    setStoreId(storeId)
-    return new Metaplex(connection)
+  constructor(public connection: Connection, private _wallet?: WalletAdapter) {
+    // Action methods
+    // TODO: fix property to methods
+    for (const method of Object.keys(actions)) {
+      this[method] = (...args) => actions[method].call(this, this.connection, this.wallet, ...args)
+    }
   }
 
-  // addWallet(wallet: Wallet) {
-  //   this.wallets.set(wallet.name, wallet)
-  // }
+  static init({ connection, wallet, storeId }: MetaplexOptions): Metaplex & HasActionMethods {
+    setStoreId(storeId)
+    return new Metaplex(connection, wallet) as Metaplex & HasActionMethods
+  }
 
-  setWalletAdapter(adapter: WalletAdapter) {
-    this.adapter = adapter
+  get wallet() {
+    return this._wallet
+  }
+
+  setWallet(wallet: WalletAdapter) {
+    this._wallet = wallet
   }
 
   async setStoreForOwner(ownerAddress: string) {
@@ -33,11 +62,19 @@ export class Metaplex {
     setStoreId(storeId)
   }
 
-  async initStore(isPublic: boolean, whitelistedCreators: WhitelistedCreator[] = []) {
-    await saveAdmin(this.connection, this.adapter, isPublic, whitelistedCreators)
-  }
-
   async getMetaplexAccounts() {
     return getProgramAccounts(this.connection, METAPLEX_ID)
+  }
+
+  async getVaultAccounts() {
+    return getProgramAccounts(this.connection, VAULT_ID)
+  }
+
+  async getMetadataAccounts() {
+    return getProgramAccounts(this.connection, METADATA_PROGRAM_ID)
+  }
+
+  async getAuctionAccounts() {
+    return getProgramAccounts(this.connection, AUCTION_ID)
   }
 }

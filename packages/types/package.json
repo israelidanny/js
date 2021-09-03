@@ -11,7 +11,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rimraf dist && tsc"
+    "build": "rimraf dist && tsc",
+    "dev": "tsc --watch"
   },
   "dependencies": {
     "@solana/web3.js": "^1.24.1"

@@ -19,7 +19,7 @@
     "build:wallets": "yarn workspace @metaplex/wallets run build",
     "build:react": "yarn workspace @metaplex/react run build",
     "build": "yarn workspaces foreach --exclude @metaplex/react run build",
-    "dev": "yarn workspaces foreach run dev",
+    "dev": "yarn workspaces foreach --parallel -i run dev",
     "clean": "yarn cache clean && rm -rf node_modules",
     "example:react": "yarn workspace example-react run start"
   },

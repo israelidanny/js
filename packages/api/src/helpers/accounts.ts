@@ -1,6 +1,7 @@
 import { AccountInfo, Connection } from '@solana/web3.js'
-import { StringPublicKey } from '@metaplex/utils'
+import { METAPLEX_ID, StringPublicKey } from '@metaplex/utils'
 import { AccountAndPubkey } from '@metaplex/types'
+import { MetaplexKey } from '@metaplex/layout'
 
 export const getProgramAccounts = async (
   connection: Connection,
@@ -52,3 +53,33 @@ export const getProgramAccounts = async (
 
   return data
 }
+
+export const isMetaplexAccount = (account: AccountInfo<Buffer>) =>
+  (account.owner as unknown as any) === METAPLEX_ID
+
+export const isAuctionManagerV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.AuctionManagerV1
+
+export const isAuctionManagerV2Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.AuctionManagerV2
+
+export const isBidRedemptionTicketV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.BidRedemptionTicketV1
+
+export const isBidRedemptionTicketV2Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.BidRedemptionTicketV2
+
+export const isPayoutTicketV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.PayoutTicketV1
+
+export const isPrizeTrackingTicketV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.PrizeTrackingTicketV1
+
+export const isStoreV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.StoreV1
+
+export const isSafetyDepositConfigV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.SafetyDepositConfigV1
+
+export const isWhitelistedCreatorV1Account = (account: AccountInfo<Buffer>) =>
+  account.data[0] === MetaplexKey.WhitelistedCreatorV1

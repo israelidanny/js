@@ -11,7 +11,8 @@
     "access": "public"
   },
   "scripts": {
-    "build": "rimraf dist && tsc"
+    "build": "rimraf dist && tsc",
+    "dev": "tsc --watch"
   },
   "dependencies": {
     "@solana/wallet-adapter-base": "^0.5.1",

@@ -2,6 +2,7 @@ import { Metaplex } from '@metaplex/api'
 import { SeedWalletAdapter } from '@metaplex/wallets'
 import { ENDPOINTS } from '@metaplex/utils'
 import { Connection, Keypair } from '@solana/web3.js'
+import { WhitelistedCreator } from '@metaplex/layout'
 
 // const signer = Keypair.generate()
 // console.log(signer.publicKey.toString())
@@ -20,17 +21,36 @@ const connection = new Connection(
   'recent',
 )
 const metaplex = Metaplex.init({ connection })
-metaplex.setWalletAdapter(new SeedWalletAdapter({ signer }))
+metaplex.setWallet(new SeedWalletAdapter({ signer }))
 
 const run = async () => {
   // 0. Set store id
   await metaplex.setStoreForOwner(signer.publicKey.toString())
 
   // 1. Init store
-  await metaplex.initStore(true)
+  await metaplex.saveAdmin(true, [
+    new WhitelistedCreator({
+      address: signer.publicKey.toBase58(),
+      activated: true,
+    }),
+  ])
 
-  const accounts = await metaplex.getMetaplexAccounts()
-  console.log(accounts)
+  const metadata = {
+    name: 'nft',
+    symbol: 'NFT',
+    description: 'some nft',
+    external_url: '',
+    properties: {},
+    creators: null,
+    sellerFeeBasisPoints: 0.1,
+  }
+
+  // 2. Mint nft
+  const nft = await metaplex.mintNFT('devnet', [], metadata)
+  console.log(nft)
+
+  // const accounts = await metaplex.getMetaplexAccounts()
+  // console.log(accounts)
 
   // ...
 
