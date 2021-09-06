@@ -23,7 +23,8 @@ const actions = {
   createVault,
 } as const
 
-type ActionMethodNames = keyof typeof actions
+type ActionsType = typeof actions
+type ActionMethodNames = keyof ActionsType
 type OmitConnectionAndWallet<F> = F extends (
   connection: Connection,
   wallet: WalletAdapter,
@@ -32,7 +33,7 @@ type OmitConnectionAndWallet<F> = F extends (
   ? (...args: P) => R
   : never
 type HasActionMethods = {
-  [k in ActionMethodNames]: OmitConnectionAndWallet<typeof actions[k]>
+  [k in ActionMethodNames]: OmitConnectionAndWallet<ActionsType[k]>
 }
 
 export class Metaplex {

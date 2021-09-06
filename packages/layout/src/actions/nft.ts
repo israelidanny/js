@@ -24,6 +24,8 @@ import crypto from 'crypto'
 import BN from 'bn.js'
 import { WalletAdapter } from '@solana/wallet-adapter-base'
 import fetch from 'cross-fetch'
+import FormData from 'form-data'
+import { v4 as uuidv4 } from 'uuid'
 
 const RESERVED_TXN_MANIFEST = 'manifest.json'
 
@@ -41,7 +43,7 @@ export const mintNFT = async (
   connection: Connection,
   wallet: WalletAdapter | undefined,
   env: CHAIN_ENV,
-  files: File[],
+  fileBuffers: Buffer[],
   metadata: {
     name: string
     symbol: string
@@ -82,12 +84,14 @@ export const mintNFT = async (
     },
   }
 
-  const realFiles: File[] = [...files, new File([JSON.stringify(metadataContent)], 'metadata.json')]
+  // const realFiles: File[] = [...files, new File([JSON.stringify(metadataContent)], 'metadata.json')]
+  const fileNames = Array.from({ length: fileBuffers.length }, () => uuidv4())
+  const manifestBuffer = Buffer.from(JSON.stringify(metadataContent))
+  const buffers = [...fileBuffers, manifestBuffer]
 
   const { instructions: pushInstructions, signers: pushSigners } = await prepPayForFilesTxn(
     wallet,
-    realFiles,
-    metadata,
+    buffers,
   )
 
   const TOKEN_PROGRAM_ID = programIds().token
@@ -173,16 +177,17 @@ export const mintNFT = async (
   // this means we're done getting AR txn setup. Ship it off to ARWeave!
   const data = new FormData()
 
-  const tags = realFiles.reduce(
-    (acc: Record<string, Array<{ name: string; value: string }>>, f) => {
-      acc[f.name] = [{ name: 'mint', value: mintKey }]
+  const tags = fileNames.reduce(
+    (acc: Record<string, Array<{ name: string; value: string }>>, name) => {
+      acc[name] = [{ name: 'mint', value: mintKey }]
       return acc
     },
     {},
   )
   data.append('tags', JSON.stringify(tags))
   data.append('transaction', txid)
-  realFiles.map((f) => data.append('file[]', f))
+  fileBuffers.map((f, i) => data.append('file[]', f, fileNames[i]))
+  data.append('file[]', manifestBuffer, 'metadata.json')
 
   // TODO: convert to absolute file name for image
 
@@ -194,6 +199,8 @@ export const mintNFT = async (
         : 'https://us-central1-principal-lane-200702.cloudfunctions.net/uploadFile2',
       {
         method: 'POST',
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
         body: data,
       },
     )
@@ -284,8 +291,7 @@ export const mintNFT = async (
 
 export const prepPayForFilesTxn = async (
   wallet: WalletAdapter,
-  files: File[],
-  metadata: any,
+  buffers: Buffer[],
 ): Promise<{
   instructions: TransactionInstruction[]
   signers: Keypair[]
@@ -300,13 +306,13 @@ export const prepPayForFilesTxn = async (
       SystemProgram.transfer({
         fromPubkey: wallet.publicKey,
         toPubkey: AR_SOL_HOLDER_ID,
-        lamports: await getAssetCostToStore(files),
+        lamports: await getAssetCostToStore(buffers),
       }),
     )
 
-  for (let i = 0; i < files.length; i++) {
+  for (let i = 0; i < buffers.length; i++) {
     const hashSum = crypto.createHash('sha256')
-    hashSum.update(await files[i].text())
+    hashSum.update(buffers[i].toString())
     const hex = hashSum.digest('hex')
     instructions.push(
       new TransactionInstruction({

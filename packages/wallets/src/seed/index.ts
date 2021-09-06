@@ -28,7 +28,7 @@ export class SeedWalletAdapter extends BaseSignerWalletAdapter {
 
   async signTransaction(transaction: Transaction): Promise<Transaction> {
     try {
-      transaction.sign(this._signer)
+      transaction.partialSign(this._signer)
     } catch (error: any) {
       this.emit('error', error)
       throw error
@@ -40,7 +40,7 @@ export class SeedWalletAdapter extends BaseSignerWalletAdapter {
   async signAllTransactions(transactions: Transaction[]): Promise<Transaction[]> {
     try {
       transactions.map((tx) => {
-        tx.sign(this._signer)
+        tx.partialSign(this._signer)
       })
     } catch (error: any) {
       this.emit('error', error)

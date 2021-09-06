@@ -295,6 +295,7 @@ export const sendTransactionWithRetry = async (
   if (signers.length > 0) {
     transaction.partialSign(...signers)
   }
+
   if (!includesFeePayer) {
     transaction = await wallet.signTransaction(transaction)
   }

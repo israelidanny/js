@@ -3,6 +3,7 @@ import { SeedWalletAdapter } from '@metaplex/wallets'
 import { ENDPOINTS } from '@metaplex/utils'
 import { Connection, Keypair } from '@solana/web3.js'
 import { WhitelistedCreator } from '@metaplex/layout'
+import fs from 'fs'
 
 // const signer = Keypair.generate()
 // console.log(signer.publicKey.toString())
@@ -15,6 +16,7 @@ const signer = Keypair.fromSecretKey(
     185,
   ]),
 )
+console.log(signer.publicKey.toString())
 
 const connection = new Connection(
   ENDPOINTS.find(({ name }) => name === 'devnet').endpoint,
@@ -46,7 +48,7 @@ const run = async () => {
   }
 
   // 2. Mint nft
-  const nft = await metaplex.mintNFT('devnet', [], metadata)
+  const nft = await metaplex.mintNFT('devnet', [Buffer.from(fs.readFileSync('nft.png'))], metadata)
   console.log(nft)
 
   // const accounts = await metaplex.getMetaplexAccounts()

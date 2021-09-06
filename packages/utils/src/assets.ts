@@ -8,8 +8,8 @@ export const filterModalSolTokens = (tokens: TokenInfo[]) => {
   return tokens
 }
 
-export const getAssetCostToStore = async (files: File[]) => {
-  const totalBytes = files.reduce((sum, f) => (sum += f.size), 0)
+export const getAssetCostToStore = async (buffers: Buffer[]) => {
+  const totalBytes = buffers.reduce((sum, f) => (sum += f.byteLength), 0)
   console.log('Total bytes', totalBytes)
   const txnFeeInWinstons = parseInt(await (await fetch('https://arweave.net/price/0')).text())
   console.log('txn fee', txnFeeInWinstons)
@@ -17,32 +17,19 @@ export const getAssetCostToStore = async (files: File[]) => {
     await (await fetch('https://arweave.net/price/' + totalBytes.toString())).text(),
   )
   console.log('byte cost', byteCostInWinstons)
-  const totalArCost = (txnFeeInWinstons * files.length + byteCostInWinstons) / WINSTON_MULTIPLIER
+  const totalArCost = (txnFeeInWinstons * buffers.length + byteCostInWinstons) / WINSTON_MULTIPLIER
 
   console.log('total ar', totalArCost)
 
-  let conversionRates = JSON.parse(localStorage.getItem('conversionRates') || '{}')
-
-  if (!conversionRates || !conversionRates.expiry || conversionRates.expiry < Date.now()) {
-    console.log('Calling conversion rate')
-    conversionRates = {
-      value: JSON.parse(
-        await (
-          await fetch(
-            'https://api.coingecko.com/api/v3/simple/price?ids=solana,arweave&vs_currencies=usd',
-          )
-        ).text(),
-      ),
-      expiry: Date.now() + 5 * 60 * 1000,
-    }
-
-    if (conversionRates.value.solana) {
-      try {
-        localStorage.setItem('conversionRates', JSON.stringify(conversionRates))
-      } catch {
-        // ignore
-      }
-    }
+  const conversionRates = {
+    value: JSON.parse(
+      await (
+        await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=solana,arweave&vs_currencies=usd',
+        )
+      ).text(),
+    ),
+    expiry: Date.now() + 5 * 60 * 1000,
   }
 
   // To figure out how many lamports are required, multiply ar byte cost by this number
