@@ -215,3 +215,11 @@ export function convert(account?: TokenAccount | number, mint?: MintInfo, rate =
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
+
+export function isValidHttpUrl(text: string) {
+  if (text.startsWith('http:') || text.startsWith('https:')) {
+    return true
+  }
+
+  return false
+}

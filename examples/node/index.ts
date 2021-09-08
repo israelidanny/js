@@ -1,9 +1,19 @@
 import { Metaplex } from '@metaplex/api'
 import { SeedWalletAdapter } from '@metaplex/wallets'
-import { ENDPOINTS } from '@metaplex/utils'
+import { ENDPOINTS, QUOTE_MINT, ZERO } from '@metaplex/utils'
 import { Connection, Keypair } from '@solana/web3.js'
-import { WhitelistedCreator } from '@metaplex/layout'
+import {
+  IPartialCreateAuctionArgs,
+  MetadataKey,
+  PriceFloor,
+  PriceFloorType,
+  SafetyDepositDraft,
+  WhitelistedCreator,
+  WinnerLimit,
+  WinnerLimitType,
+} from '@metaplex/layout'
 import fs from 'fs'
+import BN from 'bn.js'
 
 // const signer = Keypair.generate()
 // console.log(signer.publicKey.toString())
@@ -28,35 +38,59 @@ metaplex.setWallet(new SeedWalletAdapter({ signer }))
 const run = async () => {
   // 0. Set store id
   await metaplex.setStoreForOwner(signer.publicKey.toString())
-
-  // 1. Init store
-  await metaplex.saveAdmin(true, [
+  const whitelistedCreators = [
     new WhitelistedCreator({
       address: signer.publicKey.toBase58(),
       activated: true,
     }),
-  ])
+  ]
 
-  const metadata = {
-    name: 'nft',
-    symbol: 'NFT',
-    description: 'some nft',
-    external_url: '',
-    properties: {},
-    creators: null,
-    sellerFeeBasisPoints: 0.1,
-  }
+  // 1. Init store
+  await metaplex.saveAdmin(true, whitelistedCreators)
 
   // 2. Mint nft
-  const nft = await metaplex.mintNFT('devnet', [Buffer.from(fs.readFileSync('nft.png'))], metadata)
-  console.log(nft)
+  // const metadata = {
+  //   name: 'nft',
+  //   symbol: 'NFT',
+  //   description: 'some nft',
+  //   external_url: '',
+  //   properties: {},
+  //   creators: null,
+  //   sellerFeeBasisPoints: 0.1,
+  // }
+  // const nft = await metaplex.mintNFT('devnet', [Buffer.from(fs.readFileSync('nft.png'))], metadata)
+  // console.log(nft)
+
+  const metadataAccounts = await metaplex.getMetadataAccounts(MetadataKey.MetadataV1)
+  console.log(metadataAccounts)
+
+  // 3. Create auction
+  // const auctionSettings: IPartialCreateAuctionArgs = {
+  //   winners: new WinnerLimit({
+  //     type: WinnerLimitType.Unlimited,
+  //     usize: ZERO,
+  //   }),
+  //   endAuctionAt: new BN(64000), // endAuctionAt is actually auction duration, poorly named, in seconds
+  //   auctionGap: new BN(0),
+  //   priceFloor: new PriceFloor({
+  //     type: PriceFloorType.None,
+  //     minPrice: new BN(0),
+  //   }),
+  //   tokenMint: QUOTE_MINT.toBase58(),
+  //   gapTickSizePercentage: null,
+  //   tickSize: null,
+  // }
+  // const items: SafetyDepositDraft[] = []
+  // const { vault, auction, auctionManager } = await metaplex.createAuctionManager(
+  //   {},
+  //   auctionSettings,
+  //   [],
+  //   items[0],
+  //   QUOTE_MINT.toBase58(),
+  // )
 
   // const accounts = await metaplex.getMetaplexAccounts()
   // console.log(accounts)
-
-  // ...
-
-  // 2. Create auction
 }
 
 run()

@@ -13,7 +13,8 @@
     "@metaplex/utils": "workspace:^0.1.0",
     "@metaplex/wallets": "workspace:^0.1.0",
     "@solana/spl-token": "^0.1.8",
-    "@solana/web3.js": "^1.24.1"
+    "@solana/web3.js": "^1.24.1",
+    "bn.js": "^5.2.0"
   },
   "devDependencies": {
     "ts-node": "^10.2.1",

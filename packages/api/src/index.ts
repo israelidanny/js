@@ -1,15 +1,29 @@
-import { mintNFT, saveAdmin, createVault } from '@metaplex/layout'
+import {
+  mintNFT,
+  saveAdmin,
+  createVault,
+  createAuctionManager,
+  MetadataKey,
+  decodeMetadata,
+  ParsedAccount,
+  Metadata,
+  decodeEdition,
+  Edition,
+  decodeMasterEdition,
+  MasterEditionV2,
+} from '@metaplex/layout'
 import {
   AUCTION_ID,
   getStoreID,
+  isValidHttpUrl,
   METADATA_PROGRAM_ID,
   METAPLEX_ID,
   setStoreId,
   VAULT_ID,
 } from '@metaplex/utils'
 import { WalletAdapter } from '@solana/wallet-adapter-base'
-import { Connection } from '@solana/web3.js'
-import { getProgramAccounts } from './helpers'
+import { Connection, PublicKey } from '@solana/web3.js'
+import bs58 from 'bs58'
 
 export interface MetaplexOptions {
   connection: Connection
@@ -21,6 +35,7 @@ const actions = {
   saveAdmin,
   mintNFT,
   createVault,
+  createAuctionManager,
 } as const
 
 type ActionsType = typeof actions
@@ -64,18 +79,59 @@ export class Metaplex {
   }
 
   async getMetaplexAccounts() {
-    return getProgramAccounts(this.connection, METAPLEX_ID)
+    return this.connection.getProgramAccounts(new PublicKey(METAPLEX_ID))
   }
 
   async getVaultAccounts() {
-    return getProgramAccounts(this.connection, VAULT_ID)
+    return this.connection.getProgramAccounts(new PublicKey(VAULT_ID))
   }
 
-  async getMetadataAccounts() {
-    return getProgramAccounts(this.connection, METADATA_PROGRAM_ID)
+  async getMetadataAccounts(key: MetadataKey) {
+    const accounts = await this.connection.getProgramAccounts(new PublicKey(METADATA_PROGRAM_ID), {
+      filters: [
+        {
+          memcmp: {
+            offset: 0,
+            bytes: bs58.encode(Buffer.from([key])),
+          },
+        },
+      ],
+    })
+
+    return accounts.flatMap(({ pubkey, account }) => {
+      switch (key) {
+        case MetadataKey.MetadataV1: {
+          const metadata = decodeMetadata(account.data)
+
+          if (isValidHttpUrl(metadata.data.uri) && metadata.data.uri.indexOf('arweave') >= 0) {
+            return {
+              pubkey: pubkey.toString(),
+              account,
+              info: metadata,
+            } as ParsedAccount<Metadata>
+          }
+        }
+        case MetadataKey.EditionV1: {
+          return {
+            pubkey: pubkey.toString(),
+            account,
+            info: decodeEdition(account.data),
+          } as ParsedAccount<Edition>
+        }
+        case MetadataKey.MasterEditionV2: {
+          return {
+            pubkey: pubkey.toString(),
+            account,
+            info: decodeMasterEdition(account.data),
+          } as ParsedAccount<MasterEditionV2>
+        }
+        default:
+          return []
+      }
+    })
   }
 
   async getAuctionAccounts() {
-    return getProgramAccounts(this.connection, AUCTION_ID)
+    return this.connection.getProgramAccounts(new PublicKey(AUCTION_ID))
   }
 }

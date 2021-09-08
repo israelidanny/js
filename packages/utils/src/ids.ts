@@ -55,3 +55,5 @@ export const METAPLEX_ID = 'p1exdMJcjVao65QdewkaZRUnU6VPSXhus9n2GzWfh98' as Stri
 export const SYSTEM = new PublicKey('11111111111111111111111111111111')
 
 export const AR_SOL_HOLDER_ID = new PublicKey('HvwC9QSAzvGXhhVrgPmauVwFWcYZhne3hVot9EbHuFTm')
+
+export const QUOTE_MINT = WRAPPED_SOL_MINT
